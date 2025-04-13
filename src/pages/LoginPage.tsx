@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { Mail } from "lucide-react";
 
 export default function LoginPage() {
@@ -75,9 +75,9 @@ export default function LoginPage() {
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
               Don't have an account?{" "}
-              <a href="#" className="text-primary hover:underline">
+              <Link to="/signup" className="text-primary hover:underline">
                 Sign up
-              </a>
+              </Link>
             </p>
             <p className="mt-2 text-muted-foreground text-xs">
               Demo credentials are pre-filled for you.

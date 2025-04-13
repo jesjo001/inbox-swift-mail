@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useMail } from "@/contexts/MailContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +28,14 @@ import {
   Line,
   CartesianGrid,
 } from "recharts";
+
+// Custom tooltip formatter to return string values to fix TS errors
+const tooltipFormatter = (value: any) => {
+  if (typeof value === 'number') {
+    return value.toString();
+  }
+  return value;
+};
 
 export default function Homepage() {
   const { stats, isLoading } = useMail();
@@ -116,13 +125,16 @@ export default function Homepage() {
                       <Cell key={`cell-${index}`} fill={COLORS[index]} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    content={(props) => (
-                      <ChartTooltipContent
-                        {...props}
-                        className="border-none"
-                      />
-                    )}
+                  <Tooltip 
+                    formatter={tooltipFormatter}
+                    content={({ payload, label }) => {
+                      if (!payload || !payload.length) return null;
+                      return (
+                        <ChartTooltipContent className="border-none">
+                          <div>{payload[0]?.name}: {payload[0]?.value}</div>
+                        </ChartTooltipContent>
+                      );
+                    }}
                   />
                 </RechartsPieChart>
               </ChartContainer>
@@ -156,12 +168,16 @@ export default function Homepage() {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip
-                  content={(props) => (
-                    <ChartTooltipContent
-                      {...props}
-                      className="border-none"
-                    />
-                  )}
+                  formatter={tooltipFormatter}
+                  content={({ payload, label }) => {
+                    if (!payload || !payload.length) return null;
+                    return (
+                      <ChartTooltipContent className="border-none">
+                        <div>{label}</div>
+                        <div>Messages: {payload[0]?.value}</div>
+                      </ChartTooltipContent>
+                    );
+                  }}
                 />
                 <Line
                   type="monotone"
@@ -195,12 +211,16 @@ export default function Homepage() {
                 <XAxis type="number" />
                 <YAxis dataKey="name" type="category" width={100} />
                 <Tooltip
-                  content={(props) => (
-                    <ChartTooltipContent
-                      {...props}
-                      className="border-none"
-                    />
-                  )}
+                  formatter={tooltipFormatter}
+                  content={({ payload, label }) => {
+                    if (!payload || !payload.length) return null;
+                    return (
+                      <ChartTooltipContent className="border-none">
+                        <div>{label}</div>
+                        <div>Messages: {payload[0]?.value}</div>
+                      </ChartTooltipContent>
+                    );
+                  }}
                 />
                 <Bar dataKey="count" fill="#9b87f5" radius={[0, 4, 4, 0]} />
               </RechartsBarChart>
