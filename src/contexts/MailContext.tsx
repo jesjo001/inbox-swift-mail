@@ -2,64 +2,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
-
-// Mock data for emails (in a real app, these would come from an API)
-const generateMockEmails = () => {
-  const senders = [
-    { name: "Alex Johnson", email: "alex@example.com" },
-    { name: "Emma Williams", email: "emma@example.com" },
-    { name: "Michael Brown", email: "michael@example.com" },
-    { name: "Sophia Davis", email: "sophia@example.com" },
-    { name: "Daniel Wilson", email: "daniel@example.com" },
-    { name: "Olivia Martinez", email: "olivia@example.com" },
-    { name: "James Taylor", email: "james@example.com" },
-    { name: "Ava Anderson", email: "ava@example.com" }
-  ];
-
-  const subjects = [
-    "Project Update: Q2 Progress Report",
-    "Meeting Invitation: Team Sync Tomorrow",
-    "Important: Policy Changes Effective Next Month",
-    "Your Subscription Renewal Notice",
-    "Feedback Requested: Recent Product Launch",
-    "Monthly Newsletter: Industry Trends",
-    "Action Required: Document Approval",
-    "Your Account Security Alert"
-  ];
-
-  const contentParts = [
-    "I wanted to reach out regarding our ongoing project. The team has made significant progress, and we're ahead of schedule on the main deliverables.",
-    "I hope this email finds you well. I'm writing to provide an update on the current status of our work together.",
-    "Thank you for your recent input on the design proposal. Your feedback has been invaluable, and we've incorporated many of your suggestions.",
-    "Just a quick reminder about our upcoming deadline. All materials need to be submitted by Friday to ensure we stay on track.",
-    "We're excited to announce a new feature that will be available next week. This enhancement addresses many of the requests we've received from users like you.",
-    "Following up on our conversation last week, I've prepared the documents you requested and attached them to this email for your review.",
-    "I noticed you haven't responded to our previous message. Is there any additional information you need from us to proceed with the next steps?",
-    "We'd like to invite you to participate in our user research study. Your insights would be extremely valuable as we develop our roadmap for the coming year."
-  ];
-
-  return Array.from({ length: 15 }, (_, i) => {
-    const sender = senders[Math.floor(Math.random() * senders.length)];
-    const subject = subjects[Math.floor(Math.random() * subjects.length)];
-    const content = contentParts[Math.floor(Math.random() * contentParts.length)];
-    const daysAgo = Math.floor(Math.random() * 14);
-    const hoursAgo = Math.floor(Math.random() * 24);
-    const date = new Date();
-    date.setDate(date.getDate() - daysAgo);
-    date.setHours(date.getHours() - hoursAgo);
-    
-    return {
-      id: `msg-${i + 1}`,
-      sender,
-      subject,
-      content,
-      date: date.toISOString(),
-      read: Math.random() > 0.4, // 40% chance of being unread
-      flagged: Math.random() > 0.8, // 20% chance of being flagged
-      expanded: false
-    };
-  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Sort by date, newest first
-};
+import { messagesApi } from "@/lib/api";
 
 export interface EmailMessage {
   id: string;
@@ -79,6 +22,8 @@ interface MailStats {
   total: number;
   unread: number;
   percentRead: number;
+  dailyActivity?: { date: string; count: number }[];
+  topSenders?: { name: string; count: number }[];
 }
 
 interface MailContextType {
@@ -112,11 +57,26 @@ export function MailProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     try {
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const mockEmails = generateMockEmails();
-      setMessages(mockEmails);
+      const response = await messagesApi.getAllMessages();
+      const apiMessages = response.data;
+      
+      const formattedMessages: EmailMessage[] = apiMessages.map((msg: any) => ({
+        id: msg.id,
+        sender: {
+          name: `${msg.sender.first_name} ${msg.sender.last_name}`,
+          email: msg.sender.username
+        },
+        subject: msg.subject,
+        content: msg.content,
+        date: msg.created_at,
+        read: msg.is_read,
+        flagged: false,
+        expanded: false
+      }));
+      
+      setMessages(formattedMessages);
     } catch (err) {
+      console.error("Error fetching messages:", err);
       setError("Failed to fetch messages. Please try again later.");
       toast({
         title: "Error",
@@ -129,15 +89,27 @@ export function MailProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    fetchMessages();
+    if (localStorage.getItem('token')) {
+      fetchMessages();
+    }
   }, []);
 
-  const markAsRead = (id: string) => {
-    setMessages(prevMessages => 
-      prevMessages.map(message => 
-        message.id === id ? { ...message, read: true } : message
-      )
-    );
+  const markAsRead = async (id: string) => {
+    try {
+      await messagesApi.markAsRead(id);
+      setMessages(prevMessages => 
+        prevMessages.map(message => 
+          message.id === id ? { ...message, read: true } : message
+        )
+      );
+    } catch (err) {
+      console.error("Error marking message as read:", err);
+      toast({
+        title: "Error",
+        description: "Failed to mark message as read.",
+        variant: "destructive"
+      });
+    }
   };
 
   const toggleMessageExpanded = (id: string) => {
@@ -146,7 +118,7 @@ export function MailProvider({ children }: { children: ReactNode }) {
         if (message.id === id) {
           const newState = { ...message, expanded: !message.expanded };
           if (newState.expanded && !newState.read) {
-            newState.read = true;
+            markAsRead(id);
           }
           return newState;
         }
@@ -159,13 +131,52 @@ export function MailProvider({ children }: { children: ReactNode }) {
     return messages.find(message => message.id === id);
   };
 
-  const stats: MailStats = {
-    total: messages.length,
-    unread: messages.filter(message => !message.read).length,
-    percentRead: messages.length > 0 
-      ? Math.round((messages.filter(message => message.read).length / messages.length) * 100) 
-      : 0
+  // Process messages for analytics
+  const processStats = (msgs: EmailMessage[]): MailStats => {
+    if (!msgs.length) {
+      return { total: 0, unread: 0, percentRead: 0 };
+    }
+    
+    const total = msgs.length;
+    const unread = msgs.filter(msg => !msg.read).length;
+    const percentRead = total > 0 
+      ? Math.round(((total - unread) / total) * 100)
+      : 0;
+      
+    // Calculate daily activity (messages per day)
+    const msgsByDate: Record<string, number> = {};
+    msgs.forEach(msg => {
+      const date = format(new Date(msg.date), 'yyyy-MM-dd');
+      msgsByDate[date] = (msgsByDate[date] || 0) + 1;
+    });
+    
+    const dailyActivity = Object.entries(msgsByDate)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .slice(-7); // Last 7 days
+      
+    // Calculate top senders
+    const senderCounts: Record<string, number> = {};
+    msgs.forEach(msg => {
+      const sender = msg.sender.name;
+      senderCounts[sender] = (senderCounts[sender] || 0) + 1;
+    });
+    
+    const topSenders = Object.entries(senderCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5); // Top 5 senders
+      
+    return {
+      total,
+      unread,
+      percentRead,
+      dailyActivity,
+      topSenders
+    };
   };
+  
+  const stats = processStats(messages);
 
   const filteredMessages = messages
     .filter(message => {

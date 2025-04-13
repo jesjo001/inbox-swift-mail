@@ -1,22 +1,14 @@
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-
-// Mock user data (in a real app, this would come from an API)
-const mockUser = {
-  id: "1",
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@example.com",
-  avatar: "https://ui-avatars.com/api/?name=John+Doe&background=9b87f5&color=fff"
-};
+import { authApi } from "@/lib/api";
 
 interface User {
   id: string;
-  firstName: string;
-  lastName: string;
   email: string;
-  avatar: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
@@ -30,27 +22,61 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(mockUser); // Pre-populated for demo
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Check if user is logged in on app load
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await authApi.getCurrentUser();
+          const userData = response.data;
+          setUser({
+            id: userData.id,
+            email: userData.email,
+            firstName: userData.first_name || 'User',
+            lastName: userData.last_name || '',
+            avatar: `https://ui-avatars.com/api/?name=${userData.first_name || 'U'}+${userData.last_name || 'A'}&background=9b87f5&color=fff`
+          });
+        } catch (error) {
+          localStorage.removeItem('token');
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     
     try {
-      // In a real app, this would be an API call to authenticate
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await authApi.login(email, password);
+      const { user: userData, session } = response.data;
       
-      // Simulate login
-      if (email === "demo@example.com" && password === "password") {
-        setUser(mockUser);
-        toast({
-          title: "Login successful",
-          description: "Welcome back, John Doe!",
-        });
-      } else {
-        throw new Error("Invalid credentials");
-      }
+      // Store tokens
+      localStorage.setItem('token', session.access_token);
+      
+      // Get user info
+      const userInfoResponse = await authApi.getCurrentUser();
+      const userInfo = userInfoResponse.data;
+      
+      setUser({
+        id: userData.id,
+        email: userData.email,
+        firstName: userInfo.first_name || 'User',
+        lastName: userInfo.last_name || '',
+        avatar: `https://ui-avatars.com/api/?name=${userInfo.first_name || 'U'}+${userInfo.last_name || 'A'}&background=9b87f5&color=fff`
+      });
+      
+      toast({
+        title: "Login successful",
+        description: `Welcome back, ${userInfo.first_name || 'User'}!`,
+      });
     } catch (error) {
       toast({
         title: "Login failed",
@@ -63,12 +89,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
+  const logout = async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem('token');
+      setUser(null);
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
+    }
   };
 
   return (
