@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { useMail } from "@/contexts/MailContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { BarChart, LineChart, PieChart } from "lucide-react";
@@ -47,22 +47,18 @@ export default function Homepage() {
     );
   }
 
-  // Colors for charts
   const COLORS = ['#9b87f5', '#7E69AB', '#1EAEDB', '#8B5CF6', '#F97316'];
   
-  // Format data for daily activity chart
   const activityData = stats.dailyActivity?.map(item => ({
     name: format(new Date(item.date), 'MMM dd'),
     messages: item.count
   })) || [];
 
-  // Format data for read/unread pie chart
   const readData = [
     { name: 'Read', value: stats.total - stats.unread },
     { name: 'Unread', value: stats.unread }
   ];
   
-  // Format data for top senders
   const senderData = stats.topSenders || [];
 
   return (
@@ -77,7 +73,6 @@ export default function Homepage() {
       </div>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Message Statistics Card */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -124,8 +119,8 @@ export default function Homepage() {
                   <Tooltip
                     content={(props) => (
                       <ChartTooltipContent
-                        className="border-none"
                         {...props}
+                        className="border-none"
                       />
                     )}
                   />
@@ -146,7 +141,6 @@ export default function Homepage() {
           </CardContent>
         </Card>
         
-        {/* Daily Activity Chart */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -164,8 +158,8 @@ export default function Homepage() {
                 <Tooltip
                   content={(props) => (
                     <ChartTooltipContent
-                      className="border-none"
                       {...props}
+                      className="border-none"
                     />
                   )}
                 />
@@ -182,7 +176,6 @@ export default function Homepage() {
           </CardContent>
         </Card>
         
-        {/* Top Senders Chart */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -204,8 +197,8 @@ export default function Homepage() {
                 <Tooltip
                   content={(props) => (
                     <ChartTooltipContent
-                      className="border-none"
                       {...props}
+                      className="border-none"
                     />
                   )}
                 />
