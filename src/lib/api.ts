@@ -1,7 +1,8 @@
 
 import axios from 'axios';
 
-const BASE_URL = 'https://mailserver-j9yk.onrender.com';
+const BASE_URL = import.meta.env.VITE_APP_NODE_ENV === 'devenvironment' 
+  ? 'http://localhost:5000' : 'https://mailserver-j9yk.onrender.com' ;
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -40,14 +41,14 @@ api.interceptors.response.use(
 export default api;
 
 export const authApi = {
-  login: (email: string, password: string) => 
-    api.post('/api/auth/login', { email, password }),
+  login: (username: string, password: string) => 
+    api.post('/api/auth/login', { username, password }),
   
-  register: (email: string, password: string, firstName: string, lastName: string) =>
-    api.post('/api/auth/register', { email, password, firstName, lastName }),
+  register: (email: string, password: string, firstName: string, lastName: string, username: string) =>
+    api.post('/api/auth/register', { email, password, firstName, lastName, username }),
   
   getCurrentUser: () => 
-    api.get('/api/auth/me'),
+    api.get('/api/users/me'),
   
   logout: () => 
     api.post('/api/auth/logout')

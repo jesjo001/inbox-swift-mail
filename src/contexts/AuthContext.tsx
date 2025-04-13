@@ -51,25 +51,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     setIsLoading(true);
     
     try {
-      const response = await authApi.login(email, password);
-      const { user: userData, session } = response.data;
+      const response = await authApi.login(username, password);
+      console.log("Login response:", response);
+      const { token } = response.data;
       
       // Store tokens
-      localStorage.setItem('token', session.access_token);
+      localStorage.setItem('token', token);
       
       // Get user info
       const userInfoResponse = await authApi.getCurrentUser();
       const userInfo = userInfoResponse.data;
+
+      
       
       setUser({
-        id: userData.id,
-        email: userData.email,
-        firstName: userInfo.first_name || 'User',
-        lastName: userInfo.last_name || '',
+        id: userInfo.id,
+        email: userInfo.email,
+        firstName: userInfo.firstName || 'User',
+        lastName: userInfo.lastName || '',
         avatar: `https://ui-avatars.com/api/?name=${userInfo.first_name || 'U'}+${userInfo.last_name || 'A'}&background=9b87f5&color=fff`
       });
       
@@ -80,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       toast({
         title: "Login failed",
-        description: "Invalid email or password. Please try again.",
+        description: error.response.data.message || "Invalid email or password. Please try again.",
         variant: "destructive"
       });
       throw error;

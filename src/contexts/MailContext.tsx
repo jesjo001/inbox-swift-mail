@@ -1,8 +1,8 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 import { messagesApi } from "@/lib/api";
+import { useAuth } from "./AuthContext"; // Import useAuth to access authentication state
 
 export interface EmailMessage {
   id: string;
@@ -51,6 +51,7 @@ export function MailProvider({ children }: { children: ReactNode }) {
   const [filter, setFilter] = useState<'all' | 'read' | 'unread'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const { isAuthenticated, isLoading: authLoading } = useAuth(); // Get auth state
 
   const fetchMessages = async () => {
     setIsLoading(true);
@@ -60,7 +61,20 @@ export function MailProvider({ children }: { children: ReactNode }) {
       const response = await messagesApi.getAllMessages();
       const apiMessages = response.data;
       
-      const formattedMessages: EmailMessage[] = apiMessages.map((msg: any) => ({
+      interface ApiMessage {
+        id: string;
+        sender: {
+          first_name: string;
+          last_name: string;
+          username: string;
+        };
+        subject: string;
+        content: string;
+        created_at: string;
+        is_read: boolean;
+      }
+
+      const formattedMessages: EmailMessage[] = apiMessages.map((msg: ApiMessage) => ({
         id: msg.id,
         sender: {
           name: `${msg.sender.first_name} ${msg.sender.last_name}`,
@@ -88,11 +102,13 @@ export function MailProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // This effect runs when authentication state changes
   useEffect(() => {
-    if (localStorage.getItem('token')) {
+    // Only fetch messages when auth is not loading and user is authenticated
+    if (!authLoading && isAuthenticated) {
       fetchMessages();
     }
-  }, []);
+  }, [isAuthenticated, authLoading]);
 
   const markAsRead = async (id: string) => {
     try {

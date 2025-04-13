@@ -9,15 +9,17 @@ import { Mail } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("demo@example.com");
+  const [username, setUsername] = useState("JohnDoe");
   const [password, setPassword] = useState("password");
   const { login, isAuthenticated, isLoading } = useAuth();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await login(username, password);
     } catch (error) {
       // Error handled in AuthContext
+      console.log("Login error:", error);
     }
   };
   
@@ -39,13 +41,13 @@ export default function LoginPage() {
         <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                id="username"
+                type="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="JohnDoe"
                 required
               />
             </div>

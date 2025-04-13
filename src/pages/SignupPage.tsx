@@ -14,6 +14,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
@@ -23,11 +24,12 @@ export default function SignupPage() {
     setIsLoading(true);
     
     try {
-      const response = await authApi.register(email, password, firstName, lastName);
-      const { session } = response.data;
+      const response = await authApi.register(email, password, firstName, lastName, username);
+      console.log(response);
+      const { token } = response.data;
       
       // Store token
-      localStorage.setItem('token', session.access_token);
+      localStorage.setItem('token', token);
       
       toast({
         title: "Registration successful",
@@ -36,10 +38,11 @@ export default function SignupPage() {
       
       // Redirect to login page after successful registration
       window.location.href = '/login';
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.log(error)
       toast({
         title: "Registration failed",
-        description: error.response?.data?.message || "An error occurred during registration. Please try again.",
+        description: (error as any)?.response?.data?.message || "An error occurred during registration. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -88,6 +91,17 @@ export default function SignupPage() {
               </div>
             </div>
             
+            <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Doe"
+                  required
+                />
+              </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
