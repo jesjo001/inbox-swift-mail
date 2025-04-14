@@ -4,20 +4,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useNavigate } from "react-router-dom";
 import { Mail, ArrowLeft } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("demo@example.com");
   const [username, setUsername] = useState("JohnDoe");
   const [password, setPassword] = useState("password");
   const { login, isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login(username, password);
+      // Explicitly navigate after login
+      navigate("/app");
     } catch (error) {
       // Error handled in AuthContext
       console.log("Login error:", error);
@@ -25,7 +27,7 @@ export default function LoginPage() {
   };
   
   if (isAuthenticated) {
-    return <Navigate to="/" />;
+    return <Navigate to="/app" />;
   }
   
   return (

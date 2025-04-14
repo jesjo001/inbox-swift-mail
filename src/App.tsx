@@ -24,7 +24,11 @@ const queryClient = new QueryClient();
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
   
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
@@ -48,14 +52,11 @@ const App = () => (
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 
-                <Route
-                  path="/app"
-                  element={
-                    <ProtectedRoute>
-                      <MainLayout />
-                    </ProtectedRoute>
-                  }
-                >
+                <Route path="/app" element={
+                  <ProtectedRoute>
+                    <MainLayout />
+                  </ProtectedRoute>
+                }>
                   <Route index element={<Homepage />} />
                   <Route path="inbox" element={<InboxPage />} />
                   <Route path="settings" element={<SettingsPage />} />

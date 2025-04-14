@@ -2,7 +2,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { NavLink } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, Inbox, LogOut, Mail, Settings } from "lucide-react";
+import { Home, Inbox, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMail } from "@/contexts/MailContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -48,7 +48,8 @@ export default function Sidebar({ onNavItemClick }: SidebarProps) {
         <ul className="space-y-1">
           <li>
             <NavLink 
-              to="/" 
+              to="/app" 
+              end
               className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
               onClick={onNavItemClick}
             >
@@ -58,7 +59,7 @@ export default function Sidebar({ onNavItemClick }: SidebarProps) {
           </li>
           <li>
             <NavLink 
-              to="/inbox" 
+              to="/app/inbox" 
               className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
               onClick={onNavItemClick}
             >
@@ -73,7 +74,7 @@ export default function Sidebar({ onNavItemClick }: SidebarProps) {
           </li>
           <li>
             <NavLink 
-              to="/settings" 
+              to="/app/settings" 
               className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
               onClick={onNavItemClick}
             >

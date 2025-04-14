@@ -15,5 +15,5 @@ export default function Index() {
   }
   
   // Redirect based on authentication status
-  return isAuthenticated ? <Navigate to="/" /> : <Navigate to="/login" />;
+  return isAuthenticated ? <Navigate to="/app" /> : <Navigate to="/landing" />;
 }
