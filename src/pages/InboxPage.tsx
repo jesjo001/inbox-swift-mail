@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, RefreshCw, Filter } from "lucide-react";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ComposeMessage } from "@/components/ComposeMessage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -87,6 +88,7 @@ export default function InboxPage() {
         </Button>
       </div>
       
+      {/* Search and Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -121,6 +123,7 @@ export default function InboxPage() {
         </DropdownMenu>
       </div>
       
+      {/* Message List */}
       {isLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -145,6 +148,9 @@ export default function InboxPage() {
           ))}
         </div>
       )}
+
+      {/* Compose Message Button */}
+      <ComposeMessage />
     </div>
   );
 }

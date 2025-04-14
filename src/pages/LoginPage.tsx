@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Navigate, Link } from "react-router-dom";
-import { Mail } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("demo@example.com");
@@ -36,6 +37,13 @@ export default function LoginPage() {
           </div>
           <h1 className="text-2xl font-bold">SwiftMail</h1>
           <p className="text-muted-foreground">Sign in to access your inbox</p>
+          <div className="absolute top-4 right-4">
+            <ThemeToggle />
+          </div>
+          <Link to="/landing" className="flex items-center text-primary hover:underline text-sm mt-2">
+            <ArrowLeft size={16} className="mr-1" />
+            Back to home
+          </Link>
         </div>
         
         <div className="bg-card border border-border rounded-lg p-6 shadow-sm">

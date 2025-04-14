@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Home, Inbox, LogOut, Mail, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMail } from "@/contexts/MailContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface SidebarProps {
   onNavItemClick?: () => void;
@@ -36,6 +37,7 @@ export default function Sidebar({ onNavItemClick }: SidebarProps) {
           <span className="font-medium">{user.firstName} {user.lastName}</span>
           <span className="text-xs text-muted-foreground">{user.email}</span>
         </div>
+        <ThemeToggle />
       </div>
       
       {/* Navigation */}

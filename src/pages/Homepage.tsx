@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { ComposeMessage } from "@/components/ComposeMessage";
 import {
   ChartContainer,
   ChartTooltip,
@@ -81,6 +82,7 @@ export default function Homepage() {
         </p>
       </div>
       
+      {/* Dashboard Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
@@ -234,6 +236,9 @@ export default function Homepage() {
           Go to Inbox
         </Button>
       </div>
+
+      {/* Compose Message Button */}
+      <ComposeMessage />
     </div>
   );
 }
