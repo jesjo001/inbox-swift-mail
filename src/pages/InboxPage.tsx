@@ -19,6 +19,7 @@ import {
 function MessageRow({ message }: { message: EmailMessage }) {
   const { toggleMessageExpanded } = useMail();
   
+  console.log("MessageRow", message);
   return (
     <div
       className={`message-row ${!message.read ? 'unread' : ''} ${message.expanded ? 'expanded' : ''}`}
@@ -27,7 +28,7 @@ function MessageRow({ message }: { message: EmailMessage }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center">
           <h3 className={`text-sm font-medium mr-2 truncate ${!message.read ? 'font-semibold' : ''}`}>
-            {message.sender.name}
+            {message.senderUserName || message.sender.name}
           </h3>
           <span className="text-xs text-muted-foreground">
             {formatEmailDate(message.date)}
@@ -42,11 +43,11 @@ function MessageRow({ message }: { message: EmailMessage }) {
         
         {message.expanded && (
           <div className="message-content">
-            <h4 className="text-lg font-medium mb-2">{message.subject}</h4>
+            <h4 className="text-lg font-medium mb-2">Subject: {message.subject}</h4>
             <div className="flex justify-between items-center mb-4">
               <div>
-                <p className="font-medium">{message.sender.name}</p>
-                <p className="text-sm text-muted-foreground">{message.sender.email}</p>
+                {/* <p className="font-medium">{message.sender.name}</p> */}
+                <p className="text-sm text-muted-foreground">Sender: {message.sender.email}</p>
               </div>
               <p className="text-sm text-muted-foreground">
                 {new Date(message.date).toLocaleString()}
@@ -55,7 +56,9 @@ function MessageRow({ message }: { message: EmailMessage }) {
             <div className="prose prose-sm max-w-none">
               <p>{message.content}</p>
               <p>{message.content}</p>
-              <p>Best regards,<br />{message.sender.name}</p>
+              <br/>
+              <br/>
+              <p>Best regards,<br />{message.sender.email || message.sender.name}</p>
             </div>
           </div>
         )}
@@ -114,7 +117,7 @@ export default function InboxPage() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Filter By</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={filter} onValueChange={(value) => setFilter(value as any)}>
+            <DropdownMenuRadioGroup value={filter} onValueChange={(value: "all" | "read" | "unread") => setFilter(value)}>
               <DropdownMenuRadioItem value="all">All Messages</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="read">Read Messages</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="unread">Unread Messages</DropdownMenuRadioItem>

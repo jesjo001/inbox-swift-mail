@@ -11,6 +11,7 @@ export interface EmailMessage {
     email: string;
   };
   subject: string;
+  senderUserName?: string;
   content: string;
   date: string;
   read: boolean;
@@ -61,29 +62,33 @@ export function MailProvider({ children }: { children: ReactNode }) {
       const response = await messagesApi.getAllMessages();
       const apiMessages = response.data;
       
+      console.log("Fetched messages:", apiMessages); // Log the fetched messages
       interface ApiMessage {
-        id: string;
+        _id?: string;
+        id?: string;
         sender: {
-          first_name: string;
-          last_name: string;
+          firstName: string;
+          lastName: string;
           username: string;
         };
+        senderUserName: string;
         subject: string;
+        recipient: string;
         content: string;
-        created_at: string;
-        is_read: boolean;
+        createdAt: string;
+        isRead: boolean;
       }
 
       const formattedMessages: EmailMessage[] = apiMessages.map((msg: ApiMessage) => ({
-        id: msg.id,
+        id: msg._id,
         sender: {
-          name: `${msg.sender.first_name} ${msg.sender.last_name}`,
-          email: msg.sender.username
+          name: msg.senderUserName || `${msg.sender.firstName} ${msg.sender.lastName}`,
+          email: msg.recipient
         },
         subject: msg.subject,
         content: msg.content,
-        date: msg.created_at,
-        read: msg.is_read,
+        date: msg.createdAt,
+        read: msg.isRead,
         flagged: false,
         expanded: false
       }));
@@ -152,6 +157,8 @@ export function MailProvider({ children }: { children: ReactNode }) {
     if (!msgs.length) {
       return { total: 0, unread: 0, percentRead: 0 };
     }
+
+    console.log("Processing stats for messages:", msgs);  
     
     const total = msgs.length;
     const unread = msgs.filter(msg => !msg.read).length;

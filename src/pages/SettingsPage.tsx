@@ -176,14 +176,14 @@ export default function SettingsPage() {
               <CardDescription>Customize how the application looks</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Theme</Label>
                 <div className="flex space-x-2">
                   <Button variant="outline" className="flex-1">Light</Button>
                   <Button variant="outline" className="flex-1">Dark</Button>
                   <Button variant="default" className="flex-1">System</Button>
                 </div>
-              </div>
+              </div> */}
               
               <div className="space-y-2">
                 <Label htmlFor="messageDisplay">Message Display Density</Label>

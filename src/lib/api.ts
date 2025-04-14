@@ -61,8 +61,8 @@ export const messagesApi = {
   getMessageById: (id: string) => 
     api.get(`/api/messages/${id}`),
   
-  sendMessage: (recipientEmail: string, subject: string, content: string) =>
-    api.post('/api/messages', { recipientEmail, subject, content }),
+  sendMessage: (recipient: string, subject: string, content: string) =>
+    api.post('/api/messages', { recipient, subject, content }),
   
   markAsRead: (id: string) => 
     api.put(`/api/messages/${id}/read`),

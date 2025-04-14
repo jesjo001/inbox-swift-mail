@@ -42,7 +42,8 @@ export default function SignupPage() {
       console.log(error)
       toast({
         title: "Registration failed",
-        description: (error as any)?.response?.data?.message || "An error occurred during registration. Please try again.",
+        //@ts-expect-error: Error object may not have a response property
+        description: (error as unknown)?.response?.data?.message || "An error occurred during registration. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -92,7 +93,7 @@ export default function SignupPage() {
             </div>
             
             <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="Username">Username</Label>
                 <Input
                   id="username"
                   value={username}

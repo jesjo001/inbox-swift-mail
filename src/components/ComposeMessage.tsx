@@ -44,14 +44,18 @@ export function ComposeMessage() {
 
     setIsLoading(true);
     try {
-      const response = await messagesApi.sendMessage(recipientEmail, subject, content);
+      const recipient = recipientEmail.trim().toLowerCase();
+      const response = await messagesApi.sendMessage(recipient, subject, content);
+      console.log("Message sent:", response.data);
       toast({
         title: "Message sent",
         description: "Your message has been sent successfully.",
       });
       setOpen(false);
       resetForm();
-    } catch (error: any) {
+
+      window.location.reload(); // Refresh the page to see the new message
+    } catch (error) {
       toast({
         title: "Failed to send message",
         description: error.response?.data?.message || "An error occurred while sending the message",
@@ -86,6 +90,8 @@ export function ComposeMessage() {
               id="recipient"
               placeholder="recipient@example.com"
               value={recipientEmail}
+              type="email"
+              required
               onChange={(e) => setRecipientEmail(e.target.value)}
             />
           </div>
