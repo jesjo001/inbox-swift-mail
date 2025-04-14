@@ -16,9 +16,9 @@ import Homepage from "@/pages/Homepage";
 import InboxPage from "@/pages/InboxPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
-import LoadingSpinner from "@/components/LoadingSpinner"; // Create this component or use existing loading UI
 import { ThemeProvider } from "./contexts/ThemeContext";
 import LandingPage from "./pages/LandingPage";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 const queryClient = new QueryClient();
 
@@ -108,7 +108,7 @@ const App = () => (
               </Route>
               
               {/* Root path redirect */}
-              <Route path="" element={<RootRedirect />} />
+              <Route path="/" element={<RootRedirect />} />
               
               {/* 404 catch-all */}
               <Route path="*" element={<NotFound />} />
