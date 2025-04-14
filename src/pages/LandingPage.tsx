@@ -20,7 +20,7 @@ export default function LandingPage() {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             {isAuthenticated ? (
-              <Button onClick={() => navigate("/inbox")}>Go to Inbox</Button>
+              <Button onClick={() => navigate("/app/inbox")}>Go to Inbox</Button>
             ) : (
               <div className="flex space-x-2">
                 <Button variant="outline" onClick={() => navigate("/login")}>

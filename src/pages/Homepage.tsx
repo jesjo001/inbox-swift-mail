@@ -367,7 +367,7 @@ export default function Dashboard() {
                   variant="outline" 
                   size="sm" 
                   className="mt-4"
-                  onClick={() => navigate('/inbox')}
+                  onClick={() => navigate('/app/inbox')}
                 >
                   Check inbox
                 </Button>
@@ -379,7 +379,7 @@ export default function Dashboard() {
                     <div 
                       key={message.id} 
                       className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/inbox?message=${message.id}`)}
+                      onClick={() => navigate(`/app/inbox?message=${message.id}`)}
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1 min-w-0">
@@ -410,7 +410,7 @@ export default function Dashboard() {
           </CardContent>
           {latestMessages.length > 0 && (
             <CardFooter className="pt-2 pb-4 flex justify-center">
-              <Button size="sm" onClick={() => navigate('/inbox')}>
+              <Button size="sm" onClick={() => navigate('/app/inbox')}>
                 Go to Inbox
               </Button>
             </CardFooter>

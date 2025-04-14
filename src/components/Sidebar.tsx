@@ -34,7 +34,7 @@ export default function Sidebar() {
   ];
   
   return (
-    <div className="h-full flex flex-col bg-card border-r border-gray-300" id="sidebar">
+    <div className="h-full flex flex-col bg-card" id="sidebar">
       {/* User Profile */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3">
@@ -110,7 +110,7 @@ export default function Sidebar() {
         <Button 
           variant="outline" 
           className="w-full justify-start"
-          onClick={logout}
+          onClick={() => logout()}
         >
           <LogOut size={18} className="mr-2" />
           <span>Logout</span>
